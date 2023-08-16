@@ -1,5 +1,6 @@
 <?php
 
+use Facade\FlareClient\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('users/{id?}', 'Api\UserController@index');
+Route::post('login/', 'Api\LoginController@index');
+Route::post('register/', 'Api\registerController@index');
+

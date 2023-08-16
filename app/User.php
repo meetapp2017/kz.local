@@ -2,38 +2,52 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name', 'email', 'password',
-    ];
+    function getAllUsers()
+    {
+        return DB::table('users')
+            ->select('id', 'username', 'email')->get();
+    }
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    function getUserById($id)
+    {
+        return $this->where('id', $id)->get();
+    }
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    function login(Request $request)
+    {
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        return DB::table('users')
+            ->select('id', 'username', 'email')
+            ->where('username', $username)
+            ->where('password', $password)
+            ->first();
+    }
+
+    function register(Request $request)
+    {
+
+        $username = $request->input('username');
+        $password = $request->input('password');
+        $email = $request->input('email');
+
+        $id = DB::table('users')->insertGetId([
+            'username' => $username,
+            'password' => $password,
+            'email' => $email,
+        ]);
+
+        if ($id > 0)
+            return $this->login($request);
+        else
+            return false;
+    }
 }
